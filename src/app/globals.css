@@ -1,0 +1,22 @@
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind directive */
+@tailwind base;
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind directive */
+@tailwind components;
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind directive */
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  max-width: 100%;
+}
+
+body {
+  line-height: 1.5;
+  min-height: 100vh;
+}
