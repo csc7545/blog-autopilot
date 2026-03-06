@@ -97,7 +97,7 @@ export default function HomePage() {
             disabled={isGenerating}
             className="w-full py-3 px-6 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isGenerating ? '생성 중...' : '生成하기'}
+            {isGenerating ? '생성 중...' : '생성하기'}
           </button>
         </div>
 
