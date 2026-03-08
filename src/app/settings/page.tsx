@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { AppShell } from '@/components/AppShell';
 
 interface Settings {
@@ -33,11 +34,14 @@ export default function SettingsPage() {
   return (
     <AppShell>
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">설정</h1>
+        <h1 className="mb-6 text-2xl font-bold text-white">설정</h1>
 
-        <div className="space-y-6">
+        <div className="space-y-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.3)]">
           <div>
-            <label htmlFor="gemini-api-key" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="gemini-api-key"
+              className="mb-2 block text-sm font-medium text-white/85"
+            >
               Gemini API Key
             </label>
             <input
@@ -46,15 +50,18 @@ export default function SettingsPage() {
               value={settings.geminiApiKey}
               onChange={(e) => setSettings({ ...settings, geminiApiKey: e.target.value })}
               placeholder="AIza..."
-              className="w-full px-3 py-2 border rounded-md"
+              className="w-full rounded-xl border border-secondary/45 bg-[#101010] px-3 py-2 text-white placeholder:text-white/45 focus:border-accent focus:outline-none"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="mt-1 text-xs text-white/65">
               Google AI Studio에서 발급받은 API 키를 입력하세요.
             </p>
           </div>
 
           <div>
-            <label htmlFor="image-provider" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="image-provider"
+              className="mb-2 block text-sm font-medium text-white/85"
+            >
               이미지 생성 제공자
             </label>
             <select
@@ -66,7 +73,7 @@ export default function SettingsPage() {
                   imageProvider: e.target.value as Settings['imageProvider'],
                 })
               }
-              className="w-full px-3 py-2 border rounded-md"
+              className="w-full rounded-xl border border-secondary/45 bg-[#101010] px-3 py-2 text-white focus:border-accent focus:outline-none"
             >
               <option value="gemini">Gemini Nano Banana</option>
               <option value="stub">Stub (테스트용)</option>
@@ -78,7 +85,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={handleSave}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="rounded-lg bg-secondary px-4 py-2 font-semibold text-white shadow-[0_8px_20px_rgba(82,139,230,0.35)] transition-colors hover:bg-[#3f78d3]"
           >
             {saved ? '저장됨!' : '저장하기'}
           </button>

@@ -29,8 +29,8 @@ export function ExportPanel({ draft }: ExportPanelProps) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border space-y-4">
-      <h3 className="font-semibold text-lg">내보내기</h3>
+    <div className="space-y-4 rounded-2xl border border-white/15 bg-gradient-to-br from-[#103973]/35 via-white/5 to-white/5 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.3)]">
+      <h3 className="text-lg font-semibold text-accent">내보내기</h3>
 
       <div className="space-y-3">
         {htmlResult && (
@@ -38,14 +38,14 @@ export function ExportPanel({ draft }: ExportPanelProps) {
             <button
               type="button"
               onClick={() => copyToClipboard(htmlResult, 'html')}
-              className="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+              className="flex-1 rounded-lg border border-white/15 bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20"
             >
               {copied === 'html' ? '복사됨!' : 'HTML 복사'}
             </button>
             <button
               type="button"
               onClick={() => downloadFile(htmlResult, `${draft.keyword}.html`)}
-              className="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+              className="flex-1 rounded-lg bg-secondary px-4 py-2 font-semibold text-white shadow-[0_8px_20px_rgba(82,139,230,0.35)] transition-colors hover:bg-[#3f78d3]"
             >
               HTML 다운로드
             </button>
@@ -57,14 +57,14 @@ export function ExportPanel({ draft }: ExportPanelProps) {
             <button
               type="button"
               onClick={() => copyToClipboard(mdResult, 'md')}
-              className="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+              className="flex-1 rounded-lg border border-white/15 bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20"
             >
               {copied === 'md' ? '복사됨!' : 'Markdown 복사'}
             </button>
             <button
               type="button"
               onClick={() => downloadFile(mdResult, `${draft.keyword}.md`)}
-              className="flex-1 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
+              className="flex-1 rounded-lg bg-secondary px-4 py-2 font-semibold text-white shadow-[0_8px_20px_rgba(82,139,230,0.35)] transition-colors hover:bg-[#3f78d3]"
             >
               Markdown 다운로드
             </button>
@@ -72,7 +72,7 @@ export function ExportPanel({ draft }: ExportPanelProps) {
         )}
 
         {!htmlResult && !mdResult && (
-          <p className="text-gray-500 text-sm">
+          <p className="text-sm text-white/70">
             내보내기 기능은 파이프라인 완료 후 사용 가능합니다.
           </p>
         )}
