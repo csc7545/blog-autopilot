@@ -25,11 +25,13 @@ export interface StepDefinition {
 }
 
 export type PersonaId =
-  | 'it-beginner'
-  | 'office-worker'
-  | 'college-student'
-  | 'blogger-beginner'
-  | 'smartphone-user';
+  | 'female-20s-student-jobseeker'
+  | 'male-20s-student-junior-worker'
+  | 'female-30s-office-worker'
+  | 'female-30s-homemaker'
+  | 'male-40s-office-worker'
+  | 'female-40s-homemaker'
+  | 'male-50plus-current-affairs';
 
 export interface Persona {
   id: PersonaId;
@@ -45,6 +47,11 @@ export interface DraftState {
   updatedAt: Date;
   status: 'draft' | 'generating' | 'completed' | 'failed';
   currentStep: StepId | null;
+  // User selected before generation
+  selectedPersona?: PersonaId;
+  modelUsed?: string;
+  imageProviderUsed?: string;
+  // Pipeline results
   intentResult?: IntentResult;
   personaResult?: PersonaResult;
   titlesResult?: TitlesResult;

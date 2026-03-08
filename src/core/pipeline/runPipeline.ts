@@ -18,6 +18,7 @@ import titlePickStep from '../steps/titlePick';
 import titlesStep from '../steps/titles';
 import validatorStep from '../steps/validator';
 import { type PipelineStep, STEP_ORDER, type StepContext, type StepResult } from './steps';
+import { config } from '@/config';
 
 const STEPS_MAP: Record<StepId, PipelineStep | null> = {
   intent: intentStep,
@@ -52,6 +53,10 @@ export async function runPipeline(
   const { apiKey, imageProviderType = 'gemini', onStepStart, onStepComplete } = options;
 
   let currentDraft = { ...draft };
+
+  // Track model info
+  const modelUsed = config.gemini.model;
+  const imageProviderUsed = imageProviderType;
 
   for (const stepId of STEP_ORDER) {
     onStepStart?.(stepId);
@@ -96,5 +101,9 @@ export async function runPipeline(
     }
   }
 
-  return currentDraft;
+  return {
+    ...currentDraft,
+    modelUsed,
+    imageProviderUsed,
+  };
 }

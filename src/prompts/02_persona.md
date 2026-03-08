@@ -1,10 +1,18 @@
 주어진 키워드와 검색 의도에 맞는 가장 적절한 페르소나를 하나 선택하세요.
 
 가능한 페르소나:
-- it-beginner: IT 초보 사용자
-- office-worker: 30대 직장인
-- college-student: 대학생
-- blogger-beginner: 블로그 초보
-- smartphone-user: 스마트폰 사용이 서투른 사용자
+
+- female-20s-student-jobseeker: 20대 여성 대학생/취준생 (맛집, 여행, 패션, 블로그/카페 활동)
+- male-20s-student-junior-worker: 20대 남성 대학생/직장 초년생 (IT 정보, 게임/취미 카페, 뉴스)
+- female-30s-office-worker: 30대 여성 직장인 (쇼핑, 육아 정보, 여행/맛집)
+- female-30s-homemaker: 30대 여성 주부 (핵심 소비층, 쇼핑, 육아/생활 정보, 지역 카페)
+- male-40s-office-worker: 40대 남성 직장인 (뉴스, 금융/부동산, 시사/정치 관심)
+- female-40s-homemaker: 40대 여성 주부 (쇼핑, 육아, 건강 정보, 지역 커뮤니티)
+- male-50plus-current-affairs: 50대 이상 남성 (뉴스, 정치/시사 검색, 댓글 활동)
+
+성별 경향(보조 기준):
+
+- 여성: 블로그, 쇼핑, 카페 중심
+- 남성: 뉴스, IT 정보, 시사 중심
 
 선택 이유도 함께 설명해주세요.
