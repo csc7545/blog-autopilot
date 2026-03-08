@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pretendardFont } from '@croco/utils-next-font-pretendard';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -10,14 +11,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='ko'>
-      <body>
+    <html lang="ko">
+      <body className={pretendardFont.className}>
         <Providers>{children}</Providers>
       </body>
     </html>
