@@ -7,6 +7,8 @@ import { AppShell } from '@/components/AppShell';
 interface Settings {
   geminiApiKey: string;
   imageProvider: 'gemini' | 'stub' | 'dalle' | 'stability';
+  naverId: string;
+  naverPw: string;
 }
 
 const STORAGE_KEY = 'blog-autopilot-settings';
@@ -15,13 +17,16 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
     geminiApiKey: '',
     imageProvider: 'gemini',
+    naverId: '',
+    naverPw: '',
   });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      setSettings(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      setSettings((prev) => ({ ...prev, ...parsed }));
     }
   }, []);
 
@@ -80,6 +85,50 @@ export default function SettingsPage() {
               <option value="dalle">DALL-E (준비중)</option>
               <option value="stability">Stability AI (준비중)</option>
             </select>
+          </div>
+
+          <div className="border-t border-white/10 pt-6">
+            <h2 className="mb-4 text-lg font-semibold text-accent">네이버 블로그 설정</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="naver-id"
+                  className="mb-2 block text-sm font-medium text-white/85"
+                >
+                  네이버 ID
+                </label>
+                <input
+                  id="naver-id"
+                  type="text"
+                  value={settings.naverId}
+                  onChange={(e) => setSettings({ ...settings, naverId: e.target.value })}
+                  placeholder="네이버 아이디"
+                  className="w-full rounded-xl border border-secondary/45 bg-[#101010] px-3 py-2 text-white placeholder:text-white/45 focus:border-accent focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="naver-pw"
+                  className="mb-2 block text-sm font-medium text-white/85"
+                >
+                  네이버 비밀번호
+                </label>
+                <input
+                  id="naver-pw"
+                  type="password"
+                  value={settings.naverPw}
+                  onChange={(e) => setSettings({ ...settings, naverPw: e.target.value })}
+                  placeholder="비밀번호"
+                  className="w-full rounded-xl border border-secondary/45 bg-[#101010] px-3 py-2 text-white placeholder:text-white/45 focus:border-accent focus:outline-none"
+                />
+              </div>
+
+              <p className="text-xs text-white/50">
+                계정 정보는 브라우저 로컬스토리지에 저장됩니다. 공유 기기에서는 주의하세요.
+              </p>
+            </div>
           </div>
 
           <button

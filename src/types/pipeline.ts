@@ -68,6 +68,10 @@ export interface DraftState {
   validatorResult?: ValidatorResult;
   exportHtmlResult?: string;
   exportMdResult?: string;
+  // Naver publish
+  publishStatus?: 'idle' | 'publishing' | 'success' | 'error';
+  publishError?: string;
+  publishedUrl?: string;
 }
 
 export interface IntentResult {

@@ -13,4 +13,11 @@ export const config = {
     maxRetries: 3,
     timeout: 30000,
   },
+  naver: {
+    loginUrl: 'https://nid.naver.com/nidlogin.login',
+    editorUrlTemplate: 'https://blog.naver.com/{username}/postwrite',
+    loginTimeout: 30000,
+    editorTimeout: 60000,
+    publishTimeout: 30000,
+  },
 };

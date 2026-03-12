@@ -53,7 +53,24 @@ export default function DraftsPage() {
                           ` - ${draft.titlePickResult.selectedTitle}`}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
+                      {draft.publishStatus && draft.publishStatus !== 'idle' && (
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                            draft.publishStatus === 'success'
+                              ? 'bg-[#03C75A]/20 text-[#03C75A] border border-[#03C75A]/40'
+                              : draft.publishStatus === 'publishing'
+                                ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'
+                                : 'bg-red-500/20 text-red-400 border border-red-500/40'
+                          }`}
+                        >
+                          {draft.publishStatus === 'success'
+                            ? '발행 완료'
+                            : draft.publishStatus === 'publishing'
+                              ? '발행 중...'
+                              : '발행 실패'}
+                        </span>
+                      )}
                       <Link
                         href={`/drafts/${draft.id}`}
                         className="rounded-md border border-secondary/45 px-3 py-1 text-sm text-white transition-colors hover:bg-secondary/20"

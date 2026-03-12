@@ -2,13 +2,22 @@
 
 import { useState } from 'react';
 import type { DraftState } from '@/types/pipeline';
+import { useDraftStore } from '@/store/draftStore';
 
 interface ExportPanelProps {
   draft: DraftState;
 }
 
+const SETTINGS_KEY = 'blog-autopilot-settings';
+
 export function ExportPanel({ draft }: ExportPanelProps) {
+  const { updateDraft } = useDraftStore();
   const [copied, setCopied] = useState<string | null>(null);
+  const [publishStatus, setPublishStatus] = useState<
+    'idle' | 'publishing' | 'success' | 'error'
+  >('idle');
+  const [publishError, setPublishError] = useState<string | null>(null);
+
   const htmlResult = draft.exportHtmlResult;
   const mdResult = draft.exportMdResult;
 
@@ -26,6 +35,82 @@ export function ExportPanel({ draft }: ExportPanelProps) {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleNaverPublish = async () => {
+    const stored = localStorage.getItem(SETTINGS_KEY);
+    if (!stored) {
+      setPublishStatus('error');
+      setPublishError('설정에서 네이버 계정을 먼저 입력해주세요.');
+      return;
+    }
+
+    const settings = JSON.parse(stored);
+    if (!settings.naverId || !settings.naverPw) {
+      setPublishStatus('error');
+      setPublishError('설정에서 네이버 ID와 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    if (!htmlResult) {
+      setPublishStatus('error');
+      setPublishError('발행할 HTML 콘텐츠가 없습니다.');
+      return;
+    }
+
+    setPublishStatus('publishing');
+    setPublishError(null);
+    updateDraft(draft.id, { publishStatus: 'publishing', publishError: undefined });
+
+    try {
+      // Collect image URLs from draft
+      const imageUrls = (draft.imagesResult?.images || [])
+        .map((img) => img.url)
+        .filter(Boolean);
+
+      const response = await fetch('/api/publish/naver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: draft.titlePickResult?.selectedTitle || draft.keyword,
+          htmlContent: htmlResult,
+          tags: draft.hashtagsResult?.hashtags,
+          imageUrls,
+          naverId: settings.naverId,
+          naverPw: settings.naverPw,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || '발행에 실패했습니다.');
+      }
+
+      setPublishStatus('success');
+      updateDraft(draft.id, {
+        publishStatus: 'success',
+        publishedUrl: result.postUrl,
+      });
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+      setPublishStatus('error');
+      setPublishError(msg);
+      updateDraft(draft.id, { publishStatus: 'error', publishError: msg });
+    }
+  };
+
+  const publishButtonText = (): string => {
+    switch (publishStatus) {
+      case 'publishing':
+        return '발행 중...';
+      case 'success':
+        return '발행 완료!';
+      case 'error':
+        return '다시 시도';
+      default:
+        return '네이버 발행';
+    }
   };
 
   return (
@@ -77,6 +162,27 @@ export function ExportPanel({ draft }: ExportPanelProps) {
           </p>
         )}
       </div>
+
+      {htmlResult && (
+        <div className="border-t border-white/10 pt-4">
+          <button
+            type="button"
+            onClick={handleNaverPublish}
+            disabled={publishStatus === 'publishing'}
+            className="w-full rounded-lg bg-[#03C75A] px-4 py-2.5 font-semibold text-white transition-colors hover:bg-[#02b351] disabled:opacity-50"
+          >
+            {publishButtonText()}
+          </button>
+          {publishStatus === 'error' && publishError && (
+            <p className="mt-2 text-sm text-red-400">{publishError}</p>
+          )}
+          {publishStatus === 'success' && (
+            <p className="mt-2 text-sm text-green-400">
+              네이버 블로그에 성공적으로 발행되었습니다!
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
