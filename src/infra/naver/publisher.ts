@@ -252,37 +252,65 @@ export class NaverPublisher {
 
     try {
       for (const url of imageUrls) {
-        if (!url || url.startsWith('data:')) continue;
+        if (!url) continue;
 
         try {
-          // Download image to temp file
-          const response = await fetch(url);
-          if (!response.ok) continue;
+          let imgFilePath: string;
 
-          const buffer = Buffer.from(await response.arrayBuffer());
-          const ext = url.match(/\.(png|jpg|jpeg|gif|webp)/i)?.[1] || 'png';
-          const tmpFile = path.join(tmpDir, `img-${Date.now()}.${ext}`);
-          fs.writeFileSync(tmpFile, buffer);
+          if (url.startsWith('/generated/') || url.startsWith('generated/')) {
+            // Local file stored in public/generated/
+            const localPath = path.join(
+              process.cwd(),
+              'public',
+              url.startsWith('/') ? url.slice(1) : url,
+            );
+            if (!fs.existsSync(localPath)) {
+              console.info(`[NaverPublisher] Local image not found: ${localPath}`);
+              continue;
+            }
+            imgFilePath = localPath;
+          } else if (url.startsWith('data:')) {
+            // Data URI — decode to temp file
+            const match = url.match(/^data:image\/([\w+]+);base64,(.+)$/);
+            if (!match) continue;
+            const ext = match[1] === 'svg+xml' ? 'svg' : match[1];
+            const buffer = Buffer.from(match[2], 'base64');
+            imgFilePath = path.join(tmpDir, `img-${Date.now()}.${ext}`);
+            fs.writeFileSync(imgFilePath, buffer);
+          } else if (url.startsWith('http')) {
+            // Remote URL — download to temp file
+            const response = await fetch(url);
+            if (!response.ok) continue;
+            const buffer = Buffer.from(await response.arrayBuffer());
+            const ext = url.match(/\.(png|jpg|jpeg|gif|webp)/i)?.[1] || 'png';
+            imgFilePath = path.join(tmpDir, `img-${Date.now()}.${ext}`);
+            fs.writeFileSync(imgFilePath, buffer);
+          } else {
+            continue;
+          }
+
+          // SVG files can't be uploaded to Naver — skip
+          if (imgFilePath.endsWith('.svg')) {
+            console.info('[NaverPublisher] Skipping SVG image (not supported by Naver)');
+            continue;
+          }
 
           // Click the photo button in SmartEditor toolbar
-          const photoBtn = await page.$(
-            '.se-image-toolbar-button',
-          );
+          const photoBtn = await page.$('.se-image-toolbar-button');
           if (!photoBtn) {
             console.info('[NaverPublisher] Photo button not found, skipping images');
             break;
           }
 
-          // Set up file chooser listener before clicking
           const [fileChooser] = await Promise.all([
             page.waitForEvent('filechooser', { timeout: 10000 }),
             photoBtn.click(),
           ]);
 
-          await fileChooser.setFiles(tmpFile);
+          await fileChooser.setFiles(imgFilePath);
           await page.waitForTimeout(3000);
 
-          console.info(`[NaverPublisher] Image uploaded: ${url.slice(0, 60)}...`);
+          console.info(`[NaverPublisher] Image uploaded: ${url.slice(0, 80)}`);
         } catch (imgError) {
           console.info(
             `[NaverPublisher] Failed to upload image: ${imgError instanceof Error ? imgError.message : 'unknown'}`,
