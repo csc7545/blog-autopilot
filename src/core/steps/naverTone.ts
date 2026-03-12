@@ -1,5 +1,6 @@
 import type { StepContext, StepResult } from "@/core/pipeline/steps";
 import { getPrompt } from "@/core/prompts/getPrompt";
+import { getWritingStylePrefix } from "@/core/prompts/getWritingStylePrefix";
 import { createGeminiClient } from "@/infra/gemini/client";
 import type { DraftState, NaverToneResult } from "@/types/pipeline";
 import type { PipelineStep } from "../steps";
@@ -32,9 +33,10 @@ const step: PipelineStep = {
 		const { draft, apiKey } = context;
 		const gemini = createGeminiClient(apiKey);
 
+		const stylePrefix = await getWritingStylePrefix(draft);
 		const prompt = await getPrompt("naverTone");
 		const article = composeArticleForToneAdjustment(draft);
-		const fullPrompt = `${prompt}\n\n원본 콘텐츠:\n${article}`;
+		const fullPrompt = `${stylePrefix}${prompt}\n\n원본 콘텐츠:\n${article}`;
 
 		try {
 			const result = await gemini.generateContent<NaverToneResult>({

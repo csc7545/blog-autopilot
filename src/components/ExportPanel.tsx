@@ -63,19 +63,33 @@ export function ExportPanel({ draft }: ExportPanelProps) {
     updateDraft(draft.id, { publishStatus: 'publishing', publishError: undefined });
 
     try {
-      // Collect image URLs from draft
-      const imageUrls = (draft.imagesResult?.images || [])
-        .map((img) => img.url)
-        .filter(Boolean);
+      // Build structured content from pipeline results
+      const sections = (draft.sectionsResult?.sections || []).map((s) => ({
+        heading: s.heading,
+        content: s.content,
+        subsections: s.subsections,
+      }));
+
+      const images = (draft.imagesResult?.images || []).map((img) => ({
+        position: img.position,
+        url: img.url,
+      }));
+
+      const faqs = (draft.faqResult?.faqs || []).map((f) => ({
+        question: f.question,
+        answer: f.answer,
+      }));
 
       const response = await fetch('/api/publish/naver', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: draft.titlePickResult?.selectedTitle || draft.keyword,
-          htmlContent: htmlResult,
+          sections,
+          images,
+          faqs,
+          summary: draft.summaryResult?.summary || '',
           tags: draft.hashtagsResult?.hashtags,
-          imageUrls,
           naverId: settings.naverId,
           naverPw: settings.naverPw,
         }),

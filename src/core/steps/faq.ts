@@ -1,5 +1,6 @@
 import type { StepContext, StepResult } from "@/core/pipeline/steps";
 import { getPrompt } from "@/core/prompts/getPrompt";
+import { getWritingStylePrefix } from "@/core/prompts/getWritingStylePrefix";
 import { createGeminiClient } from "@/infra/gemini/client";
 import type { DraftState, FaqResult } from "@/types/pipeline";
 import type { PipelineStep } from "../steps";
@@ -16,8 +17,9 @@ const step: PipelineStep = {
 		const { draft, apiKey } = context;
 		const gemini = createGeminiClient(apiKey);
 
+		const stylePrefix = await getWritingStylePrefix(draft);
 		const prompt = await getPrompt("faq");
-		const fullPrompt = `${prompt}\n\n제목: ${draft.titlePickResult?.selectedTitle}\n본문: ${JSON.stringify(draft.sectionsResult)}`;
+		const fullPrompt = `${stylePrefix}${prompt}\n\n제목: ${draft.titlePickResult?.selectedTitle}\n본문: ${JSON.stringify(draft.sectionsResult)}`;
 
 		try {
 			const result = await gemini.generateContent<FaqResult>({

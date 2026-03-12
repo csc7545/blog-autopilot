@@ -31,3 +31,51 @@ body {
     system-ui,
     sans-serif;
 }
+
+/* 마크다운 렌더링 스타일 (글 미리보기) */
+.prose-content p {
+  margin-bottom: 0.75em;
+}
+
+.prose-content strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.prose-content ul,
+.prose-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.prose-content ul {
+  list-style-type: disc;
+}
+
+.prose-content ol {
+  list-style-type: decimal;
+}
+
+.prose-content li {
+  margin-bottom: 0.25em;
+}
+
+.prose-content blockquote {
+  border-left: 3px solid rgba(82, 139, 230, 0.5);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.prose-content a {
+  color: #528be6;
+  text-decoration: underline;
+}
+
+.prose-content code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

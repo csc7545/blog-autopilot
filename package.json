@@ -16,6 +16,7 @@
     "@croco/utils-next-font-pretendard": "^0.0.6",
     "@google/genai": "latest",
     "@tanstack/react-query": "latest",
+    "marked": "^17.0.4",
     "next": "latest",
     "playwright": "^1.58.2",
     "pretendard": "^1.3.9",

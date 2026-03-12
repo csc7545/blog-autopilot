@@ -81,8 +81,11 @@ export default function HomePage() {
     setError('');
     setIsGenerating(true);
 
+    let draftId: string | null = null;
+
     try {
       const draft = createDraft(keyword);
+      draftId = draft.id;
       draft.selectedPersona = selectedPersona;
 
       const response = await fetch('/api/pipeline/run', {
@@ -106,6 +109,10 @@ export default function HomePage() {
 
       router.push(`/drafts/${updatedDraft.id}`);
     } catch (err) {
+      // 생성 실패 시 초안 삭제
+      if (draftId) {
+        useDraftStore.getState().deleteDraft(draftId);
+      }
       setError(err instanceof Error ? err.message : '생성 중 오류 발생');
       setIsGenerating(false);
     }

@@ -1,4 +1,5 @@
 export const promptManifest = {
+  writingStyle: '00_writingStyle.md',
   intent: '01_intent.md',
   persona: '02_persona.md',
   titles: '03_titles.md',

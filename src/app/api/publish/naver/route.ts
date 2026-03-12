@@ -1,5 +1,10 @@
 import { PipelineError } from '@/core/errors';
 import { createNaverPublisher } from '@/infra/naver/publisher';
+import type {
+  ContentFaq,
+  ContentImage,
+  ContentSection,
+} from '@/infra/naver/publisher';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -8,11 +13,22 @@ export const maxDuration = 120;
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
-    const { title, htmlContent, tags, imageUrls, naverId, naverPw } = body as {
+    const {
+      title,
+      sections,
+      images,
+      faqs,
+      summary,
+      tags,
+      naverId,
+      naverPw,
+    } = body as {
       title: string;
-      htmlContent: string;
+      sections: ContentSection[];
+      images: ContentImage[];
+      faqs: ContentFaq[];
+      summary: string;
       tags?: string[];
-      imageUrls?: string[];
       naverId: string;
       naverPw: string;
     };
@@ -23,9 +39,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
-    if (!htmlContent) {
+    if (!sections || sections.length === 0) {
       return NextResponse.json(
-        { error: 'HTML content is required' },
+        { error: 'Sections are required' },
         { status: 400 },
       );
     }
@@ -37,7 +53,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const publisher = createNaverPublisher({ naverId, naverPw });
-    const result = await publisher.publish({ title, htmlContent, tags, imageUrls });
+    const result = await publisher.publish({
+      title,
+      sections,
+      images: images || [],
+      faqs: faqs || [],
+      summary: summary || '',
+      tags,
+    });
 
     return NextResponse.json({
       success: result.success,

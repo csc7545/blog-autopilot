@@ -1,3 +1,4 @@
+import { marked } from "marked";
 import type { StepContext, StepResult } from "@/core/pipeline/steps";
 import type { DraftState } from "@/types/pipeline";
 import type { PipelineStep } from "../steps";
@@ -11,13 +12,8 @@ function escapeHtml(value: string): string {
 		.replaceAll("'", "&#39;");
 }
 
-function toParagraphs(text: string): string {
-	return text
-		.split("\n\n")
-		.map((paragraph) => paragraph.trim())
-		.filter((paragraph) => paragraph.length > 0)
-		.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
-		.join("\n");
+function mdToHtml(md: string): string {
+	return marked.parse(md, { async: false }) as string;
 }
 
 function renderImage(draft: DraftState, position: string): string {
@@ -53,14 +49,29 @@ const step: PipelineStep = {
 				const sectionImage = imagePosition
 					? renderImage(draft, imagePosition)
 					: "";
-				return `<h2>${escapeHtml(section.heading)}</h2>\n${toParagraphs(section.content)}\n${sectionImage}`;
+
+				// H2 heading + content (markdown → HTML)
+				let sectionHtml = `<h2>${escapeHtml(section.heading)}</h2>\n${mdToHtml(section.content)}`;
+
+				// H3 subsections
+				if (section.subsections && section.subsections.length > 0) {
+					for (const sub of section.subsections) {
+						sectionHtml += `\n<h3>${escapeHtml(sub.subheading)}</h3>\n${mdToHtml(sub.content)}`;
+					}
+				}
+
+				if (sectionImage) {
+					sectionHtml += `\n${sectionImage}`;
+				}
+
+				return sectionHtml;
 			})
 			.join("\n\n");
 
 		const faqHtml = faqs
 			.map(
 				(faq) =>
-					`<h3>${escapeHtml(faq.question)}</h3>\n<p>${escapeHtml(faq.answer)}</p>`,
+					`<h3>${escapeHtml(faq.question)}</h3>\n${mdToHtml(faq.answer)}`,
 			)
 			.join("\n");
 
@@ -69,8 +80,8 @@ const step: PipelineStep = {
 			`<h1>${escapeHtml(title)}</h1>`,
 			renderImage(draft, "cover"),
 			htmlSections,
-			"<h2>요약</h2>",
-			`<p>${escapeHtml(summary)}</p>`,
+			`<h2>요약</h2>`,
+			mdToHtml(summary),
 			"<h2>FAQ</h2>",
 			faqHtml,
 			"</article>",

@@ -1,13 +1,18 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { marked } from 'marked';
 
 import { AppShell } from '@/components/AppShell';
 import { ExportPanel } from '@/components/ExportPanel';
 import { HydrationGuard } from '@/components/hydration-guard';
 import { useDraftStore } from '@/store/draftStore';
 import type { DraftState } from '@/types/pipeline';
+
+function renderMd(md: string): string {
+  return marked.parse(md, { async: false }) as string;
+}
 
 const PERSONA_LABELS: Record<string, string> = {
   'female-20s-student-jobseeker': '20대 여성 대학생/취준생',
@@ -118,68 +123,111 @@ export default function DraftDetailPage() {
           </div>
 
           <div className="space-y-8">
-            {draft.imagesResult && draft.imagesResult.images.length > 0 && (
-              <div>
-                <h2 className="font-semibold mb-3 text-accent">생성 이미지</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {draft.imagesResult.images.map((image) => (
-                    <div
-                      key={image.position}
-                      className="rounded-lg border border-white/15 bg-white/5 p-3"
-                    >
-                      <p className="mb-2 text-xs text-white/60">{image.position}</p>
-                      <img
-                        src={image.url || createFallbackImageDataUri(image.alt)}
-                        alt={image.alt}
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = createFallbackImageDataUri(image.alt);
-                        }}
-                        className="w-full h-48 object-cover rounded border"
+            {/* 통합 글 미리보기 */}
+            {draft.sectionsResult && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+                <h2 className="mb-6 font-semibold text-accent">글 미리보기</h2>
+
+                <article className="prose-naver space-y-6 text-white/90">
+                  {/* 커버 이미지 */}
+                  {draft.imagesResult?.images.find((img) => img.position === 'cover') && (
+                    <img
+                      src={draft.imagesResult.images.find((img) => img.position === 'cover')!.url}
+                      alt={draft.imagesResult.images.find((img) => img.position === 'cover')!.alt}
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = createFallbackImageDataUri(
+                          draft.imagesResult!.images.find((img) => img.position === 'cover')!.alt,
+                        );
+                      }}
+                      className="w-full rounded-lg object-cover"
+                    />
+                  )}
+
+                  {/* 섹션별 본문 + 이미지 인터리브 */}
+                  {draft.sectionsResult.sections.map((section, i) => {
+                    const sectionImage = draft.imagesResult?.images.find(
+                      (img) => img.position === `section${i + 1}`,
+                    );
+
+                    return (
+                      <div key={i} className="space-y-4">
+                        <h3 className="text-xl font-bold text-white">{section.heading}</h3>
+                        <div
+                          className="prose-content leading-relaxed text-white/85"
+                          dangerouslySetInnerHTML={{ __html: renderMd(section.content) }}
+                        />
+
+                        {section.subsections && section.subsections.length > 0 && (
+                          <div className="space-y-3 pl-1">
+                            {section.subsections.map((sub, j) => (
+                              <div key={j}>
+                                <h4 className="text-lg font-semibold text-white/95">{sub.subheading}</h4>
+                                <div
+                                  className="prose-content mt-1 leading-relaxed text-white/80"
+                                  dangerouslySetInnerHTML={{ __html: renderMd(sub.content) }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {sectionImage && (
+                          <img
+                            src={sectionImage.url}
+                            alt={sectionImage.alt}
+                            onError={(event) => {
+                              event.currentTarget.onerror = null;
+                              event.currentTarget.src = createFallbackImageDataUri(sectionImage.alt);
+                            }}
+                            className="w-full rounded-lg object-cover"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* FAQ */}
+                  {draft.faqResult && draft.faqResult.faqs.length > 0 && (
+                    <div className="space-y-3 border-t border-white/10 pt-6">
+                      <h3 className="text-xl font-bold text-white">자주 묻는 질문 (FAQ)</h3>
+                      {draft.faqResult.faqs.map((faq, i) => (
+                        <div key={i} className="space-y-1">
+                          <p className="font-semibold text-white">Q. {faq.question}</p>
+                          <div
+                            className="prose-content text-white/75"
+                            dangerouslySetInnerHTML={{ __html: renderMd(`A. ${faq.answer}`) }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 요약 */}
+                  {draft.summaryResult && (
+                    <div className="border-t border-white/10 pt-6">
+                      <h3 className="text-lg font-semibold text-white/95">요약</h3>
+                      <div
+                        className="prose-content mt-2 leading-relaxed text-white/80"
+                        dangerouslySetInnerHTML={{ __html: renderMd(draft.summaryResult.summary) }}
                       />
-                      <p className="mt-2 text-sm text-white/80">{image.alt}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                  )}
 
-            {draft.naverToneResult && (
-              <div>
-                <h2 className="font-semibold mb-3 text-accent">본문</h2>
-                <div className="whitespace-pre-wrap rounded-lg border border-white/15 bg-white/5 p-6 text-white/90">
-                  {draft.naverToneResult.adjustedContent}
-                </div>
-              </div>
-            )}
-
-            {draft.faqResult && (
-              <div>
-                <h2 className="font-semibold mb-3 text-accent">FAQ</h2>
-                <div className="space-y-4">
-                  {draft.faqResult.faqs.map((faq, i) => (
-                    <div key={i} className="rounded border border-white/15 bg-white/5 p-4">
-                      <p className="font-medium text-white">Q: {faq.question}</p>
-                      <p className="mt-2 text-white/75">A: {faq.answer}</p>
+                  {/* 해시태그 */}
+                  {draft.hashtagsResult && draft.hashtagsResult.hashtags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
+                      {draft.hashtagsResult.hashtags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="rounded-full border border-secondary/45 bg-secondary/20 px-3 py-1 text-sm text-secondary"
+                        >
+                          #{tag.replace(/^#/, '')}
+                        </span>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {draft.hashtagsResult && (
-              <div>
-                <h2 className="font-semibold mb-3 text-accent">해시태그</h2>
-                <div className="flex flex-wrap gap-2">
-                  {draft.hashtagsResult.hashtags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="rounded-full border border-secondary/45 bg-secondary/20 px-3 py-1 text-sm text-secondary"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                  )}
+                </article>
               </div>
             )}
 

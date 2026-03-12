@@ -100,11 +100,17 @@ export interface OutlineResult {
   }[];
 }
 
-export interface SectionsResult {
-  sections: {
-    heading: string;
+export interface SectionItem {
+  heading: string;
+  content: string;
+  subsections?: {
+    subheading: string;
     content: string;
   }[];
+}
+
+export interface SectionsResult {
+  sections: SectionItem[];
 }
 
 export interface FaqResult {

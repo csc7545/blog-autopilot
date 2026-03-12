@@ -36,7 +36,18 @@ const step: PipelineStep = {
 				const image = imagePosition
 					? renderMarkdownImage(draft, imagePosition)
 					: "";
-				return [`## ${section.heading}`, section.content, image]
+
+				const parts = [`## ${section.heading}`, section.content];
+
+				if (section.subsections && section.subsections.length > 0) {
+					for (const sub of section.subsections) {
+						parts.push(`### ${sub.subheading}`, sub.content);
+					}
+				}
+
+				if (image) parts.push(image);
+
+				return parts
 					.filter((segment) => segment.trim().length > 0)
 					.join("\n\n");
 			})
